@@ -100,25 +100,77 @@ public class MapManager
 
     private void DrawLines()
     {
-        if (_vertices.Count < 2) return;
+        _lineFeatures.Clear();
 
-        var points = _vertices
-            .Select(v => SphericalMercator.FromLonLat(v.Longitude, v.Latitude).ToMPoint())
-            .Select(p => new Coordinate(p.X, p.Y))
-            .ToArray();
-
-        var line = new LineString(points);
-        var feature = new GeometryFeature { Geometry = line };
-
-        feature.Styles.Add(new VectorStyle
+        for (int i = 0; i < _vertices.Count - 1; i++)
         {
-            Line = new Pen(Mapsui.Styles.Color.Blue, 3)
+            var start = SphericalMercator.FromLonLat(_vertices[i].Longitude, _vertices[i].Latitude).ToMPoint();
+            var end = SphericalMercator.FromLonLat(_vertices[i + 1].Longitude, _vertices[i + 1].Latitude).ToMPoint();
+
+            var line = new LineString(new[] {
+            new Coordinate(start.X, start.Y),
+            new Coordinate(end.X, end.Y)
         });
 
-        _lineFeatures.Clear();
-        _lineFeatures.Add(feature);
+            var feature = new GeometryFeature { Geometry = line };
+            feature.Styles.Add(new VectorStyle
+            {
+                Line = new Pen(Mapsui.Styles.Color.Blue, 3)
+            });
+
+            _lineFeatures.Add(feature);
+        }
+
         _mapView.Refresh();
     }
+
+    public void UpdateSegmentHighlight(double userLat, double userLon)
+    {
+        if (_vertices.Count < 2 || _lineFeatures.Count != _vertices.Count - 1)
+            return;
+
+        var userCoord = SphericalMercator.FromLonLat(userLon, userLat).ToMPoint();
+
+        // Encontra o ponto mais próximo
+        int closestIndex = -1;
+        double minDistance = double.MaxValue;
+
+        for (int i = 0; i < _vertices.Count; i++)
+        {
+            var point = SphericalMercator.FromLonLat(_vertices[i].Longitude, _vertices[i].Latitude).ToMPoint();
+            var distance = Math.Sqrt(Math.Pow(point.X - userCoord.X, 2) + Math.Pow(point.Y - userCoord.Y, 2));
+
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closestIndex = i;
+            }
+        }
+
+        // Limite de distância em metros (ajustável)
+        double proximityThreshold = 30;
+
+        // Atualiza estilos das linhas
+        for (int i = 0; i < _lineFeatures.Count; i++)
+        {
+            bool shouldHighlight = false;
+
+            if (closestIndex > 0 && i == closestIndex - 1) shouldHighlight = true;     // anterior
+            if (i == closestIndex) shouldHighlight = true;                             // atual
+            if (i == closestIndex + 1) shouldHighlight = true;                         // próximo
+
+            var style = new VectorStyle
+            {
+                Line = new Pen(shouldHighlight ? Mapsui.Styles.Color.Red : Mapsui.Styles.Color.Blue, 3)
+            };
+
+            _lineFeatures[i].Styles.Clear();
+            _lineFeatures[i].Styles.Add(style);
+        }
+
+        _mapView.Refresh();
+    }
+
 
     public void ClearVertices()
     {
@@ -132,4 +184,38 @@ public class MapManager
     {
         return _vertices;
     }
+
+    public void RemoveLastVertex()
+    {
+        if (_vertices.Count == 0)
+            return;
+
+        // Remove o último ponto da lista
+        _vertices.RemoveAt(_vertices.Count - 1);
+        _vertexFeatures.RemoveAt(_vertexFeatures.Count - 1);
+
+        // Redesenha a linha com os pontos restantes
+        _lineFeatures.Clear();
+
+        if (_vertices.Count >= 2)
+        {
+            var points = _vertices
+                .Select(v => SphericalMercator.FromLonLat(v.Longitude, v.Latitude).ToMPoint())
+                .Select(p => new Coordinate(p.X, p.Y))
+                .ToArray();
+
+            var line = new LineString(points);
+            var feature = new GeometryFeature { Geometry = line };
+
+            feature.Styles.Add(new VectorStyle
+            {
+                Line = new Pen(Mapsui.Styles.Color.Blue, 3)
+            });
+
+            _lineFeatures.Add(feature);
+        }
+
+        _mapView.Refresh();
+    }
+
 }

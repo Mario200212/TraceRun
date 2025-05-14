@@ -3,21 +3,23 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TraceRunApp.ChargeRoutes"
              Title="ChargeRoutes">
-    <ScrollView>
-        <VerticalStackLayout
-            Padding="20"
-            Spacing="10"
-            x:Name="RoutesLayout">
 
-            <!-- Botão de Voltar -->
-            <Button 
-                Text="← Voltar"
-                Clicked="OnBackClicked"
-                BackgroundColor="#ddd"
-                TextColor="Black" />
+    <Grid Padding="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-            <!-- Aqui serão adicionados os botões das rotas via C# -->
+        <!-- Lista de Rotas com Scroll -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout
+                x:Name="RoutesLayout"
+                Spacing="12"
+                Padding="0,10"
+                WidthRequest="360"
+                HorizontalOptions="Center">
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 
-        </VerticalStackLayout>
-    </ScrollView>
 </ContentPage>

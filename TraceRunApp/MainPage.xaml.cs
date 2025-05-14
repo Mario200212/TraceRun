@@ -34,6 +34,7 @@ public partial class MainPage : ContentPage
             MainThread.BeginInvokeOnMainThread(() =>
             {
                 UpdateLocation(location.Latitude, location.Longitude);
+                _mapManager.UpdateSegmentHighlight(location.Latitude, location.Longitude);
             });
         };
 
@@ -70,7 +71,7 @@ public partial class MainPage : ContentPage
 
         if (location != null)
         {
-            LocationLabel.Text = $"Lat: {location.Latitude}, Lon: {location.Longitude} "+$"{Path.Combine(FileSystem.AppDataDirectory, "routes.db")}";
+            LocationLabel.Text = $"Lat: {location.Latitude}, Lon: {location.Longitude} ";
 
             SetCenter(location.Latitude, location.Longitude);
 
@@ -88,15 +89,26 @@ public partial class MainPage : ContentPage
         _mapManager.UpdateLocation(latitude, longitude);
     }
 
-    private async void OnStartTrackingClicked(object sender, EventArgs e)
+    private bool _isTracking = false;
+
+    private async void OnToggleTrackingClicked(object sender, EventArgs e)
     {
-        await _locationService.StartListeningAsync();
+        if (!_isTracking)
+        {
+            await _locationService.StartListeningAsync();
+            _isTracking = true;
+            StartStopTrackingButton.Text = "🛑 Stop Running";
+            StartStopTrackingButton.BackgroundColor = Colors.Red;
+        }
+        else
+        {
+            _locationService.StopListening();
+            _isTracking = false;
+            StartStopTrackingButton.Text = "🏃 Start Running";
+            StartStopTrackingButton.BackgroundColor = Colors.Green;
+        }
     }
 
-    private void OnStopTrackingClicked(object sender, EventArgs e)
-    {
-        _locationService.StopListening();
-    }
 
     private void OnMapControlSizeChanged(object? sender, EventArgs e)
     {
@@ -123,13 +135,14 @@ public partial class MainPage : ContentPage
 
         if (_isDrawingMode)
         {
-            StartDrawingButton.Text = "🛑 Parar Desenho";
+            StartDrawingButton.Text = "🛑 Stop Drawing";
+            StartDrawingButton.BackgroundColor= Colors.Red;
             //StopDrawingButton.IsEnabled = true;
         }
         else
         {
-            StartDrawingButton.Text = "Desenhar Rota";
-            //StopDrawingButton.IsEnabled = false;
+            StartDrawingButton.Text = "✏️ Draw Route";
+            StartDrawingButton.BackgroundColor = Colors.Blue;
         }
     }
 
@@ -249,6 +262,11 @@ public partial class MainPage : ContentPage
 
         var first = vertices.First();
         _mapManager.CenterMap(first.lat, first.lon);
+    }
+
+    private void OnRemoveLastPointClicked(object sender, EventArgs e)
+    {
+        _mapManager.RemoveLastVertex();
     }
 
 }

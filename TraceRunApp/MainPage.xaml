@@ -12,16 +12,20 @@
         <VerticalStackLayout Spacing="6" Grid.Row="0">
             <ScrollView Orientation="Horizontal" HorizontalOptions="Center">
                 <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
-                    <Button Text="📍 Localização Atual" Clicked="OnGetLocationClicked" HorizontalOptions="Center" />
-                    <Button Text="▶️ Iniciar Rastro" Clicked="OnStartTrackingClicked" HorizontalOptions="Center" />
-                    <Button Text="⏹️ Parar" Clicked="OnStopTrackingClicked" HorizontalOptions="Center" />
-                    <Button Text="Desenhar Rota" x:Name="StartDrawingButton" Clicked="OnStartStopDrawingClicked" HorizontalOptions="Center" />
-                    <Button Text="Salvar Rota" x:Name="StopDrawingButton" Clicked="OnSaveClicked" HorizontalOptions="Center" />
-                    <Button Text="Limpar Caminho" Clicked="OnClearPathClicked" BackgroundColor="Red" TextColor="White" HorizontalOptions="Center"/>
-                    <Button Text="Rotas Salvas" Clicked="ShowRoutesButton_Clicked"/>
-                    <Button Text="Carregar Rotas" Clicked="OnChargeRoutesClicked"/>
+                    <Button Text="📍 Current Location" BackgroundColor="Blue" TextColor="White" Clicked="OnGetLocationClicked" HorizontalOptions="Center" />
+                    <Button
+            x:Name="StartStopTrackingButton"
+            Text="🏃‍ Start Running"
+            BackgroundColor="Green"
+                        TextColor="White"
+            Clicked="OnToggleTrackingClicked" />
+                    <Button Text="✏️ Draw Route" x:Name="StartDrawingButton" BackgroundColor="Blue" TextColor="White" Clicked="OnStartStopDrawingClicked" HorizontalOptions="Center" />
+                    <Button Text="💾 Save Route" x:Name="StopDrawingButton" TextColor="White" Clicked="OnSaveClicked" HorizontalOptions="Center" />
+                    <Button Text="🗑️ Clear Path" Clicked="OnClearPathClicked" BackgroundColor="Red" TextColor="White" HorizontalOptions="Center"/>
+                    <Button Text="📂 Saved Routes" Clicked="OnChargeRoutesClicked" TextColor="White"/>
                 </HorizontalStackLayout>
             </ScrollView>
+            <Button Text="↩️" HorizontalOptions="Center" Clicked="OnRemoveLastPointClicked" BackgroundColor="Blue" TextColor="White" />
 
             <Label x:Name="LocationLabel"
                    Text="Localização aparecerá aqui."

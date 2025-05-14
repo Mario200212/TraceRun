@@ -7,8 +7,6 @@ namespace TraceRunApp
 {
     public class LocationService
     {
-
-
         public event Action<Location> LocationUpdated;
 
         private CancellationTokenSource _trackingTokenSource;
