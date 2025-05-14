@@ -9,7 +9,7 @@ public partial class ChargeRoutes : ContentPage
     public ChargeRoutes(MainPage mainPage)
     {
         InitializeComponent();
-
+        this.Title = "Saved Routes";
         _mainPage = mainPage;
 
         string dbPath = Path.Combine(FileSystem.AppDataDirectory, "routes.db");

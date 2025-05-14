@@ -102,6 +102,7 @@ public partial class MainPage : ContentPage
         }
         else
         {
+            _mapManager.ResetProgress();
             _locationService.StopListening();
             _isTracking = false;
             StartStopTrackingButton.Text = "🏃 Start Running";
@@ -240,6 +241,8 @@ public partial class MainPage : ContentPage
 
     private async void OnChargeRoutesClicked(object sender, EventArgs e)
     {
+        _mapManager.ResetProgress();
+
         await Navigation.PushAsync(new ChargeRoutes(this));
     }
 

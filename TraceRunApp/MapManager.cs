@@ -12,6 +12,8 @@ namespace TraceRunApp;
 
 public class MapManager
 {
+    private int _currentSegmentIndex = 0;
+
     private readonly MapControl _mapView;
 
     private readonly MemoryLayer _vertexLayer;
@@ -124,6 +126,52 @@ public class MapManager
         _mapView.Refresh();
     }
 
+    //public void UpdateSegmentHighlight(double userLat, double userLon)
+    //{
+    //    if (_vertices.Count < 2 || _lineFeatures.Count != _vertices.Count - 1)
+    //        return;
+
+    //    var userCoord = SphericalMercator.FromLonLat(userLon, userLat).ToMPoint();
+
+    //    // Encontra o ponto mais próximo
+    //    int closestIndex = -1;
+    //    double minDistance = double.MaxValue;
+
+    //    for (int i = 0; i < _vertices.Count; i++)
+    //    {
+    //        var point = SphericalMercator.FromLonLat(_vertices[i].Longitude, _vertices[i].Latitude).ToMPoint();
+    //        var distance = Math.Sqrt(Math.Pow(point.X - userCoord.X, 2) + Math.Pow(point.Y - userCoord.Y, 2));
+
+    //        if (distance < minDistance)
+    //        {
+    //            minDistance = distance;
+    //            closestIndex = i;
+    //        }
+    //    }
+
+    //    // Limite de distância em metros (ajustável)
+    //    double proximityThreshold = 30;
+
+    //    // Atualiza estilos das linhas
+    //    for (int i = 0; i < _lineFeatures.Count; i++)
+    //    {
+    //        bool shouldHighlight = false;
+
+    //        if (closestIndex > 0 && i == closestIndex - 1) shouldHighlight = true;     // anterior
+    //        if (i == closestIndex) shouldHighlight = true;                             // atual
+    //        if (i == closestIndex + 1) shouldHighlight = true;                         // próximo
+
+    //        var style = new VectorStyle
+    //        {
+    //            Line = new Pen(shouldHighlight ? Mapsui.Styles.Color.Red : Mapsui.Styles.Color.Blue, 3)
+    //        };
+
+    //        _lineFeatures[i].Styles.Clear();
+    //        _lineFeatures[i].Styles.Add(style);
+    //    }
+
+    //    _mapView.Refresh();
+    //}
     public void UpdateSegmentHighlight(double userLat, double userLon)
     {
         if (_vertices.Count < 2 || _lineFeatures.Count != _vertices.Count - 1)
@@ -131,37 +179,33 @@ public class MapManager
 
         var userCoord = SphericalMercator.FromLonLat(userLon, userLat).ToMPoint();
 
-        // Encontra o ponto mais próximo
-        int closestIndex = -1;
-        double minDistance = double.MaxValue;
-
-        for (int i = 0; i < _vertices.Count; i++)
+        // Verifica se o usuário está próximo do próximo ponto esperado
+        if (_currentSegmentIndex < _vertices.Count)
         {
-            var point = SphericalMercator.FromLonLat(_vertices[i].Longitude, _vertices[i].Latitude).ToMPoint();
-            var distance = Math.Sqrt(Math.Pow(point.X - userCoord.X, 2) + Math.Pow(point.Y - userCoord.Y, 2));
+            var nextPoint = SphericalMercator.FromLonLat(
+                _vertices[_currentSegmentIndex].Longitude,
+                _vertices[_currentSegmentIndex].Latitude).ToMPoint();
 
-            if (distance < minDistance)
+            double distance = Math.Sqrt(Math.Pow(userCoord.X - nextPoint.X, 2) + Math.Pow(userCoord.Y - nextPoint.Y, 2));
+            double proximityThreshold = 30; // metros
+
+            if (distance < proximityThreshold && _currentSegmentIndex < _vertices.Count - 1)
             {
-                minDistance = distance;
-                closestIndex = i;
+                _currentSegmentIndex++;
             }
         }
 
-        // Limite de distância em metros (ajustável)
-        double proximityThreshold = 30;
-
-        // Atualiza estilos das linhas
+        // Atualiza estilos com base no progresso
         for (int i = 0; i < _lineFeatures.Count; i++)
         {
-            bool shouldHighlight = false;
-
-            if (closestIndex > 0 && i == closestIndex - 1) shouldHighlight = true;     // anterior
-            if (i == closestIndex) shouldHighlight = true;                             // atual
-            if (i == closestIndex + 1) shouldHighlight = true;                         // próximo
+            bool isHighlighted =
+                i == _currentSegmentIndex - 1 ||      // anterior
+                i == _currentSegmentIndex ||          // atual
+                i == _currentSegmentIndex + 1;        // próximo
 
             var style = new VectorStyle
             {
-                Line = new Pen(shouldHighlight ? Mapsui.Styles.Color.Red : Mapsui.Styles.Color.Blue, 3)
+                Line = new Pen(isHighlighted ? Mapsui.Styles.Color.Red : Mapsui.Styles.Color.Blue, 3)
             };
 
             _lineFeatures[i].Styles.Clear();
@@ -217,5 +261,11 @@ public class MapManager
 
         _mapView.Refresh();
     }
+
+    public void ResetProgress()
+    {
+        _currentSegmentIndex = 0;
+    }
+
 
 }

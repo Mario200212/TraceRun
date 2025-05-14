@@ -2,7 +2,8 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:mapsui="clr-namespace:Mapsui.UI.Maui;assembly=Mapsui.UI.Maui"
-             x:Class="TraceRunApp.MainPage">
+             x:Class="TraceRunApp.MainPage"
+             BackgroundColor="White">
 
     <!-- Grid principal com 2 linhas: controles e mapa -->
     <Grid RowDefinitions="Auto, *"

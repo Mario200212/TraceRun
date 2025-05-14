@@ -8,7 +8,7 @@
     Title="TraceRunApp">
 
     <ShellContent
-        Title="Home"
+        Title="Trace Run"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 
